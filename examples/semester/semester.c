@@ -9,7 +9,6 @@
 #include "SciLexer.h"
 #include "Lexilla.h"
 
-#define TB_OPT_ATTR_W 32
 #define TB_IMPL
 #include "ScintillaTermbox2.h"
 
@@ -88,6 +87,8 @@ int main(int argc, char **argv) {
       "int main(int argc, char **argv) {\n"
       "    // Start up the gnome\n"
       "    // •日本語でコメント\n"
+      "    // composed: é が\n"
+      "    // combining: e\xCC\x81 か\xE3\x82\x99\n"
       "\tgnome_init(\"stest\", \"1.0\", argc, argv);\n}");
   // clang-format on
   SSM(SCI_SETPROPERTY, (uptr_t) "fold", (sptr_t) "1");

@@ -8,7 +8,7 @@ AR = ar
 CC = gcc
 CXX = g++
 CFLAGS = -std=c99 -pedantic -Wall
-CXXFLAGS = -std=c++17 -pedantic -DTB_OPT_ATTR_W=32 -DSCI_LEXER -I../include -I../src -Ivendor/termbox2 -Wall
+CXXFLAGS = -std=c++17 -pedantic -DSCI_LEXER -I../include -I../src -Ivendor/termbox2 -Wall
 ifdef DEBUG
   CXXFLAGS += -DDEBUG -g
 else

@@ -20,12 +20,12 @@ This builds `scintilla/bin/scintilla.a`.
 Define the termbox2 implementation in one source file:
 
 ```c
-#define TB_OPT_ATTR_W 32
 #define TB_IMPL
 #include "ScintillaTermbox2.h"
 ```
 
-Compile all Scintilla termbox2 sources with `TB_OPT_ATTR_W=32`.
+`ScintillaTermbox2.h` enables true color and extended grapheme cluster support
+consistently for termbox2 and the Scintilla platform sources.
 
 ## Example
 

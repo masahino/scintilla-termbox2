@@ -1,6 +1,14 @@
 #ifndef SCINTILLATERMBOX2_H
 #define SCINTILLATERMBOX2_H
 
+#ifndef TB_OPT_ATTR_W
+#define TB_OPT_ATTR_W 32
+#endif
+
+#ifndef TB_OPT_EGC
+#define TB_OPT_EGC
+#endif
+
 #include <termbox2.h>
 
 #ifdef __cplusplus

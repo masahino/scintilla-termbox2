@@ -325,7 +325,12 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, XYPOSITION cornerSize,
   for (int x = x0; x < right; x++) {
     const struct tb_cell &cell = buffer[(w->top + y) * stride + (w->left + x)];
     const uint32_t ch = cell.ch ? cell.ch : ' ';
-    tb_set_cell(w->left + x, w->top + y, ch, cell.fg, bg);
+    if (cell.nech > 0) {
+      tb_set_cell_ex(w->left + x, w->top + y, cell.ech, cell.nech, cell.fg,
+                     bg);
+    } else {
+      tb_set_cell(w->left + x, w->top + y, ch, cell.fg, bg);
+    }
   }
 }
 
@@ -413,18 +418,24 @@ void SurfaceImpl::DrawTextNoClip(PRectangle rc, const Font *font_,
   if (bytes == 0) {
     return;
   }
-  int len = 0;
-  int width = 0;
+  size_t len = 0;
   const char *str = text.data();
-  while (*str) {
+  std::vector<uint32_t> cluster;
+  while (len < bytes) {
     uint32_t uni;
-    width = grapheme_width(str + len);
-    len += tb_utf8_char_to_unicode(&uni, str + len);
-    tb_set_cell(left + x, top + y, uni, to_rgb(fore) | attrs, to_rgb(back));
-    x += width;
-    if (len >= bytes) {
-      break;
+    const int width = grapheme_width(str + len);
+    len += static_cast<size_t>(tb_utf8_char_to_unicode(&uni, str + len));
+    cluster.clear();
+    cluster.push_back(uni);
+
+    while (len < bytes && grapheme_width(str + len) == 0) {
+      len += static_cast<size_t>(tb_utf8_char_to_unicode(&uni, str + len));
+      cluster.push_back(uni);
     }
+
+    tb_set_cell_ex(left + x, top + y, cluster.data(), cluster.size(),
+                   to_rgb(fore) | attrs, to_rgb(back));
+    x += width;
   }
 }
 /**
