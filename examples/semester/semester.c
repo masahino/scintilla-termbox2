@@ -164,7 +164,8 @@ while (1)
           scintilla_move(sci, 10, 19);
           break;
         case TB_KEY_CTRL_C:
-          SSM(SCI_AUTOCSHOW, 0, (sptr_t)"abc •opq xyz 01234567890 漢字 xxx xxx xxx xxx");
+          SSM(SCI_AUTOCSHOW, 0,
+              (sptr_t)"abc 日本語 漢字かな •symbol 0123456789");
           break;
         case TB_KEY_CTRL_D:
           SSM(SCI_AUTOCSETMAXHEIGHT, 16, 0);

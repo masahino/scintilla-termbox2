@@ -74,6 +74,16 @@ int grapheme_width(const char *s) {
   return width >= 0 ? width : 1;
 }
 
+/** Returns the number of terminal columns used to display a UTF-8 string. */
+int utf8_width(std::string_view text) {
+  int width = 0;
+  for (size_t i = 0; i < text.length(); i++) {
+    if (!UTF8IsTrailByte(static_cast<unsigned char>(text[i])))
+      width += grapheme_width(text.data() + i);
+  }
+  return width;
+}
+
 // Font handling.
 
 FontImpl::FontImpl(const FontParameters &fp) {
@@ -809,9 +819,9 @@ void ListBoxImpl::Append(char *s, int type) {
     list.push_back(std::string(chtype, strlen(chtype)) + s);
   } else
     list.push_back(std::string(" ") + s);
-  int len = strlen(s); // TODO: UTF-8 awareness?
-  if (width < len + 2) {
-    width = len + 2; // include type character len
+  const int itemWidth = utf8_width(list.back()) + 1;
+  if (width < itemWidth) {
+    width = itemWidth;
   }
   reinterpret_cast<Termbox2Win *>(wid)->right =
       reinterpret_cast<Termbox2Win *>(wid)->left + width - 1;
@@ -842,20 +852,17 @@ void ListBoxImpl::Select(int n) {
       back = 0x383838;
     }
     if (i < len) {
-      tb_set_cell(left, top + i - s, ' ', fore, back);
-      int text_offset = 1;
+      size_t text_offset = 0;
       int text_width = 0;
-      int x = 1;
-      const char *str = list.at(i).c_str();
-      while (*str) {
+      int x = 0;
+      const std::string &item = list.at(i);
+      const char *str = item.c_str();
+      while (text_offset < item.size()) {
         uint32_t uni;
         text_width = grapheme_width(str + text_offset);
         text_offset += tb_utf8_char_to_unicode(&uni, str + text_offset);
         tb_set_cell(left + x, top + i - s, uni, fore, back);
         x += text_width;
-        if (text_offset >= list.at(i).size()) {
-          break;
-        }
       }
       for (int j = x; j < width; j++) {
         tb_set_cell(left + j, top + i - s, ' ', fore, back);
