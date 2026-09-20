@@ -714,13 +714,12 @@ bool scintilla_send_mouse(void *sci, int event, int button, int y, int x,
   bool shift, bool ctrl, bool alt) {
   ScintillaTermbox2 *scitermbox = reinterpret_cast<ScintillaTermbox2 *>(sci);
   Scintilla::Internal::Termbox2Win *w = scitermbox->GetWINDOW();
-  int begy = w->top, begx = w->left;
-  int maxy = w->bottom, maxx = w->right;
   // Ignore most events outside the window.
-  if ((x < begx || x > begx + maxx || y < begy || y > begy + maxy) && button != 4 &&
+  if ((x < w->left || x > w->right || y < w->top || y > w->bottom) && button != 4 &&
     button != 5 && event != SCM_DRAG)
     return false;
-  y = y - begy, x = x - begx;
+  y -= w->top;
+  x -= w->left;
   if (event == SCM_PRESS)
     return scitermbox->MousePress(button, y, x, shift, ctrl, alt);
   else if (event == SCM_DRAG)
