@@ -226,7 +226,6 @@ public:
     mouseSelectionRectangularSwitch = true; // easier rectangular selection
     doubleClickCloseThreshold = Point(0, 0); // double-clicks only in same cell
     horizontalScrollBarVisible = false; // no horizontal scroll bar
-    scrollWidth = 5 * width; // reasonable default for any horizontal scroll bar
     vs.SetElementRGB(Element::SelectionText, 0x000000); // black on white selection
     vs.SetElementRGB(Element::SelectionAdditionalText, 0x000000);
     vs.SetElementRGB(Element::SelectionAdditionalBack, 0xFFFFFF);
@@ -266,6 +265,7 @@ public:
     // initialization code for termbox2
     height = tb_height();
     width = tb_width();
+    scrollWidth = 5 * width; // reasonable default for any horizontal scroll bar
 //    wMain = tb_cell_buffer();
     wMain = new Termbox2Win(0, 0, width - 1, height - 1);
     if (sur) sur->Init(wMain.GetID());

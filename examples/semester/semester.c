@@ -89,6 +89,15 @@ int main(int argc, char **argv) {
       "    // •日本語でコメント\n"
       "    // composed: é が\n"
       "    // combining: e\xCC\x81 か\xE3\x82\x99\n"
+      "    // horizontal scrollbar test: "
+      "0123456789012345678901234567890123456789012345678901234567890123"
+      "4567890123456789012345678901234567890123456789012345678901234567"
+      "8901234567890123456789012345678901234567890123456789012345678901"
+      "2345678901234567890123456789012345678901234567890123456789012345"
+      "6789012345678901234567890123456789012345678901234567890123456789"
+      "0123456789012345678901234567890123456789012345678901234567890123"
+      "4567890123456789012345678901234567890123456789012345678901234567"
+      "8901234567890123456789012345678901234567890123456789012345678901\n"
       "\tgnome_init(\"stest\", \"1.0\", argc, argv);\n}");
   // clang-format on
   SSM(SCI_SETPROPERTY, (uptr_t) "fold", (sptr_t) "1");
@@ -98,7 +107,7 @@ int main(int argc, char **argv) {
   SSM(SCI_SETMARGINSENSITIVEN, 2, 1);
   SSM(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_CLICK, 0);
 //  SSM(SCI_SETVSCROLLBAR, 1, 1);
-//  SSM(SCI_SETHSCROLLBAR, 1, 1);
+  SSM(SCI_SETHSCROLLBAR, 1, 1);
   SSM(SCI_SETINDENTATIONGUIDES, 2, 2);
   SSM(SCI_SETHIGHLIGHTGUIDE, 1, 1);
 
@@ -215,14 +224,11 @@ while (1)
       break;
       case TB_EVENT_MOUSE:
       {
-        struct timeval time = {0, 0};
-        gettimeofday(&time, NULL);
-        int event = 1;
-        int millis = time.tv_sec * 1000 + time.tv_usec / 1000;
-         if (ev.mod == 2) {
-          event = 2;
+        int event = SCM_PRESS;
+        if (ev.mod & TB_MOD_MOTION) {
+          event = SCM_DRAG;
         } else if (ev.key == TB_KEY_MOUSE_RELEASE) {
-          event = 3;
+          event = SCM_RELEASE;
         }
         scintilla_send_mouse(sci, event, 1, ev.y, ev.x, false, false, false);
         scintilla_refresh(sci);
