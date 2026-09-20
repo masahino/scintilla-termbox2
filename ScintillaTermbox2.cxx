@@ -134,10 +134,11 @@ class ScintillaTermbox2 : public ScintillaBase {
   int scrollBarVPos, scrollBarHPos; // positions of the scroll bars
   int scrollBarHeight = 1, scrollBarWidth = 1; // scroll bar height and width
   SelectionText clipboard; // current clipboard text
-  bool capturedMouse; // whether or not the mouse is currently captured
-  unsigned int autoCompleteLastClickTime; // last click time in the AC box
-  bool draggingVScrollBar, draggingHScrollBar; // a scrollbar is being dragged
-  int dragOffset; // the distance to the position of the scrollbar being dragged
+  bool capturedMouse = false; // whether or not the mouse is currently captured
+  unsigned int autoCompleteLastClickTime = 0; // last click time in the AC box
+  bool draggingVScrollBar = false; // whether the vertical scrollbar is being dragged
+  bool draggingHScrollBar = false; // whether the horizontal scrollbar is being dragged
+  int dragOffset = 0; // the distance to the position of the scrollbar being dragged
 
 public:
   ScintillaTermbox2(void (*callback_)(void *, int, SCNotification *, void *), void *userdata_);
