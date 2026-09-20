@@ -656,7 +656,7 @@ public:
     if (draggingVScrollBar || draggingHScrollBar)
       draggingVScrollBar = false, draggingHScrollBar = false;
     else if (HaveMouseCapture()) {
-      ButtonUpWithModifiers(Point(x, y), time, ModifierFlags(ctrl, false, false));
+      ButtonUpWithModifiers(Point(x, y), time, ModifierFlags(false, ctrl, false));
       // TODO: ListBoxEvent event(ListBoxEvent::EventType::selectionChange);
       // TODO: listbox->delegate->ListNotify(&event);
     }
