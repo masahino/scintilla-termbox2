@@ -104,8 +104,13 @@ std::shared_ptr<Font> Font::Allocate(const FontParameters &fp) {
 
 // Surface handling.
 
-int to_rgb(ColourRGBA c) {
-  return (c.GetRed() << 16) + (c.GetGreen() << 8) + (c.GetBlue());
+uintattr_t to_terminal_color(ColourRGBA c) {
+  const uint32_t rgb = (c.GetRed() << 16) + (c.GetGreen() << 8) + c.GetBlue();
+  return scintilla_termbox2_color(rgb);
+}
+
+uintattr_t to_rgb(ColourRGBA c) {
+  return to_terminal_color(c);
 }
 
 SurfaceImpl::SurfaceImpl(int w, int h) noexcept {
@@ -183,12 +188,12 @@ void SurfaceImpl::Polygon(const Point *pts, size_t npts,
 
   if (pts[0].y < pts[npts - 1].y) // up arrow
     tb_set_cell(left + static_cast<int>(pts[npts - 1].x - 2),
-                   top + static_cast<int>(pts[0].y), 0x25B2, 0x000000,
-                   to_rgb(back));
+                   top + static_cast<int>(pts[0].y), 0x25B2,
+                   scintilla_termbox2_color(0x000000), to_terminal_color(back));
   else if (pts[0].y > pts[npts - 1].y) // down arrow
     tb_set_cell(left + static_cast<int>(pts[npts - 1].x - 2),
-                   top + static_cast<int>(pts[0].y - 2), 0x25BC, 0x000000,
-                   to_rgb(back));
+                   top + static_cast<int>(pts[0].y - 2), 0x25BC,
+                   scintilla_termbox2_color(0x000000), to_terminal_color(back));
 }
 
 /**
@@ -249,7 +254,9 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Fill fill) {
   }
   for (int y = rc.top; y < rc.bottom; y++) {
     for (int x = rc.left; x < right; x++) {
-      tb_set_cell(left + x, top + y, ch, 0xffffff, to_rgb(fill.colour));
+      tb_set_cell(left + x, top + y, ch,
+                  scintilla_termbox2_color(0xffffff),
+                  to_terminal_color(fill.colour));
     }
   }
 }
@@ -303,7 +310,7 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, XYPOSITION cornerSize,
 
   Termbox2Win *w = reinterpret_cast<Termbox2Win *>(win);
   const int right = std::min(static_cast<int>(rc.right), w->Width());
-  const uint32_t bg = to_rgb(fillStroke.fill.colour);
+  const uintattr_t bg = to_terminal_color(fillStroke.fill.colour);
 
   /* scinterm's PlatCurses paints a single row at rc.top - 1: for a
      one-cell-tall line the box rect Scintilla hands over for
@@ -434,7 +441,7 @@ void SurfaceImpl::DrawTextNoClip(PRectangle rc, const Font *font_,
     }
 
     tb_set_cell_ex(left + x, top + y, cluster.data(), cluster.size(),
-                   to_rgb(fore) | attrs, to_rgb(back));
+                   to_terminal_color(fore) | attrs, to_terminal_color(back));
     x += width;
   }
 }
@@ -843,8 +850,8 @@ void ListBoxImpl::Append(char *s, int type) {
 int ListBoxImpl::Length() { return list.size(); }
 /** Selects the given item in the listbox and repaints the listbox. */
 void ListBoxImpl::Select(int n) {
-  int fore = 0;
-  int back = 0;
+  uintattr_t fore = 0;
+  uintattr_t back = 0;
   int left = reinterpret_cast<Termbox2Win *>(wid)->left;
   int top = reinterpret_cast<Termbox2Win *>(wid)->top;
 
@@ -856,11 +863,11 @@ void ListBoxImpl::Select(int n) {
     s = 0;
   for (int i = s; i < s + height; i++) {
     if (i == n) {
-      fore = 0x383838;
-      back = 0x7cafc2;
+      fore = scintilla_termbox2_color(0x383838);
+      back = scintilla_termbox2_color(0x7cafc2);
     } else {
-      fore = 0xd8d8d8;
-      back = 0x383838;
+      fore = scintilla_termbox2_color(0xd8d8d8);
+      back = scintilla_termbox2_color(0x383838);
     }
     if (i < len) {
       size_t text_offset = 0;

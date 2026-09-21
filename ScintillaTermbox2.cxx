@@ -289,11 +289,14 @@ public:
     int left = reinterpret_cast<Termbox2Win *>(wMain.GetID())->left;
     int top = reinterpret_cast<Termbox2Win *>(wMain.GetID())->top;
     // Draw the gutter.
-    for (int i = 0; i < maxy; i++) tb_set_cell(left + maxx - 1, top + i, ' ', 0x282828, 0x282828);
+    const uintattr_t gutter = scintilla_termbox2_color(0x282828);
+    for (int i = 0; i < maxy; i++)
+      tb_set_cell(left + maxx - 1, top + i, ' ', gutter, gutter);
     // Draw the bar.
     scrollBarVPos = static_cast<float>(topLine) / (MaxScrollPos() + LinesOnScreen() - 1) * maxy;
+    const uintattr_t bar = scintilla_termbox2_color(0xd8d8d8);
     for (int i = scrollBarVPos; i < scrollBarVPos + scrollBarHeight; i++)
-      tb_set_cell(left + maxx - 1, top + i, ' ', 0xd8d8d8, 0xd8d8d8);
+      tb_set_cell(left + maxx - 1, top + i, ' ', bar, bar);
   }
   /** Draws the horizontal scroll bar. */
   void ScintillaTermbox2::SetHorizontalScrollPos() {
@@ -304,12 +307,15 @@ public:
     int top = reinterpret_cast<Termbox2Win *>(wMain.GetID())->top;
     // Draw the gutter.
 //    wattr_set(w, 0, term_color_pair(COLOR_WHITE, COLOR_BLACK), nullptr);
-    for (int i = 0; i < maxx; i++) tb_set_cell(left + i, top + maxy - 1, ' ', 0x282828, 0x282828);
+    const uintattr_t gutter = scintilla_termbox2_color(0x282828);
+    for (int i = 0; i < maxx; i++)
+      tb_set_cell(left + i, top + maxy - 1, ' ', gutter, gutter);
     // Draw the bar.
     scrollBarHPos = static_cast<float>(xOffset) / scrollWidth * maxx;
 //    wattr_set(w, 0, term_color_pair(COLOR_BLACK, COLOR_WHITE), nullptr);
+    const uintattr_t bar = scintilla_termbox2_color(0xd8d8d8);
     for (int i = scrollBarHPos; i < scrollBarHPos + scrollBarWidth; i++)
-      tb_set_cell(left + i, top + maxy - 1, ' ', 0xd8d8d8, 0xd8d8d8);
+      tb_set_cell(left + i, top + maxy - 1, ' ', bar, bar);
   }
   /**
    * Sets the height of the vertical scroll bar and width of the horizontal scroll bar.
@@ -424,7 +430,10 @@ public:
       sur->Init(wid);
       dynamic_cast<SurfaceImpl *>(sur.get())->isCallTip = true;
       Termbox2Win *w = reinterpret_cast<Termbox2Win *>(ct.wCallTip.GetID());
-      int bg = (ct.colourBG.GetRed() << 16) + (ct.colourBG.GetGreen() << 8)  + (ct.colourBG.GetBlue());
+      const uint32_t rgb = (ct.colourBG.GetRed() << 16) |
+                           (ct.colourBG.GetGreen() << 8) |
+                           ct.colourBG.GetBlue();
+      const uintattr_t bg = scintilla_termbox2_color(rgb);
       for (int y = w->top; y < w->bottom; y++) {
         for (int x = w->left; x < w->right; x++) {
           tb_set_cell(x, y, ' ', bg, bg);
