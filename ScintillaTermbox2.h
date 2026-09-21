@@ -11,51 +11,6 @@
 
 #include <termbox2.h>
 
-/* Convert an RGB colour to the representation expected by the active
- * termbox2 output mode. */
-static inline uintattr_t scintilla_termbox2_color(uint32_t rgb) {
-  const int mode = tb_set_output_mode(TB_OUTPUT_CURRENT);
-  const int red = (rgb >> 16) & 0xff;
-  const int green = (rgb >> 8) & 0xff;
-  const int blue = rgb & 0xff;
-
-  if (mode == TB_OUTPUT_TRUECOLOR)
-    return (uintattr_t)rgb;
-
-  if (mode == TB_OUTPUT_256) {
-    static const int levels[] = {0, 95, 135, 175, 215, 255};
-    const int ri = (red * 5 + 127) / 255;
-    const int gi = (green * 5 + 127) / 255;
-    const int bi = (blue * 5 + 127) / 255;
-    const int cube = 16 + 36 * ri + 6 * gi + bi;
-    const int dr = red - levels[ri];
-    const int dg = green - levels[gi];
-    const int db = blue - levels[bi];
-    const int cube_distance = dr * dr + dg * dg + db * db;
-
-    int gray_index = ((red + green + blue) / 3 - 8 + 5) / 10;
-    if (gray_index < 0)
-      gray_index = 0;
-    else if (gray_index > 23)
-      gray_index = 23;
-    const int gray_level = 8 + gray_index * 10;
-    const int gr = red - gray_level;
-    const int gg = green - gray_level;
-    const int gb = blue - gray_level;
-    const int gray_distance = gr * gr + gg * gg + gb * gb;
-
-    return (uintattr_t)(gray_distance < cube_distance ? 232 + gray_index : cube);
-  }
-
-  const int ansi = (red >= 128 ? 1 : 0) |
-                   (green >= 128 ? 2 : 0) |
-                   (blue >= 128 ? 4 : 0);
-  const int brightest = red > green ? (red > blue ? red : blue)
-                                    : (green > blue ? green : blue);
-  return (uintattr_t)(TB_BLACK + ansi) |
-         (brightest >= 192 ? TB_BRIGHT : 0);
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
